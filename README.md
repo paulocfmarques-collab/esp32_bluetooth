@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/Language-C%2B%2B-00599C?style=for-the-badge&logo=c%2B%2B" alt="C++" />
 </p>
 
-A compact ESP32 project for remote control and live system diagnostics over Bluetooth Classic (SPP). The device creates a serial channel with a smartphone or PC, accepts textual commands, and returns real-time telemetry such as CPU temperature, memory usage, reset reasons, uptime, and Wi-Fi status.
+A compact ESP32 project for remote control and live system diagnostics over Bluetooth Classic (SPP). The device creates a serial channel with a smartphone or PC, accepts textual commands, and returns status information.
 
 This repository demonstrates a practical embedded application that combines:
 
@@ -21,7 +21,7 @@ This repository demonstrates a practical embedded application that combines:
 
 ## Overview
 
-The firmware runs on an ESP32 and exposes a simple command interface through `BluetoothSerial`. A client application such as a smartphone terminal or a desktop serial tool connects to the ESP32, sends ASCII commands, and receives immediate responses.
+The firmware runs on an ESP32 and exposes a simple command interface through `BluetoothSerial`. A client application such as a smartphone terminal or a desktop serial tool connects to the ESP32, sends commands, and receives responses.
 
 The system is intentionally simple and robust:
 
@@ -146,13 +146,13 @@ The firmware has a straightforward operational lifecycle:
 
 ```mermaid
 flowchart TD
-    A[setup()] --> B[Serial.begin(115200)]
-    B --> C[pinMode(LED, OUTPUT)]
-    C --> D[SerialBT.begin("ESP32_BT")]
-    D --> E[loop()]
+    A["setup()"] --> B["Serial.begin(115200)"]
+    B --> C["pinMode(LED, OUTPUT)"]
+    C --> D["SerialBT.begin('ESP32_BT')"]
+    D --> E["loop()"]
     E --> F{Bluetooth data available?}
     F -- Yes --> G[Read command]
-    G --> H[executa_comando(cmd)]
+    G --> H["executa_comando(cmd)"]
     H --> I{Command type}
     I --> J[LED control]
     I --> K[System telemetry]
@@ -380,7 +380,7 @@ RAM livre: 280000 bytes
 
 ## Project Summary
 
-This project is a practical and compact demonstration of Bluetooth Classic communication on the ESP32. It combines a simple LED control interface with a diagnostic command set that reads data from the system itself.
+This project is a practical and compact demonstration of Bluetooth Classic communication on the ESP32. It combines a simple LED control interface with a diagnostic command set that reads data from the device's internal hardware and runtime APIs.
 
 The result is a fast, readable example of:
 
