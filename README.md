@@ -1,451 +1,471 @@
-# ESP32 Bluetooth Remote Control & System Monitor
+# ESP32 Bluetooth Device Management Platform
 
 <p align="center">
-  <img src="https://img.shields.io/badge/ESP32-Bluetooth%20Classic-1E90FF?style=for-the-badge&logo=arduino&logoColor=white" alt="ESP32 Bluetooth Classic" />
-  <img src="https://img.shields.io/badge/Platform-ESP32-00C853?style=for-the-badge" alt="Platform ESP32" />
-  <img src="https://img.shields.io/badge/Protocol-Bluetooth%20SPP-FF6F00?style=for-the-badge" alt="Bluetooth SPP" />
-  <img src="https://img.shields.io/badge/Language-C%2B%2B-00599C?style=for-the-badge&logo=c%2B%2B" alt="C++" />
+
+<img src="https://img.shields.io/badge/ESP32-Bluetooth-blue?style=for-theo=espressif
+<img src="https://img.shields.io/badge/Framework-Arduinoyle=for-the-badge&logo=arduino
+<img src="https://img.shields.io/badge/Bluetooth-Classic_SPPyle=for-the-badge&logo=bluetooth
+<img src="https://img.shields.io/badge/++-00599C?style=for-the-badge&logo=cplusplus
+<img src="https://img.shields.io/badge/Platform-ESP32-Ee=for-the-badge
+
 </p>
 
-A compact ESP32 project for remote control and live system diagnostics over Bluetooth Classic (SPP). The device creates a serial channel with a smartphone or PC, accepts textual commands, and returns status information in real time.
-
-This repository demonstrates a practical embedded application that combines:
-
-- Bluetooth serial communication
-- Real-time LED control
-- Embedded system reporting
-- Remote diagnostics over a lightweight terminal interface
-- Educational examples for ESP32 development and serial command handling
+<p align="center">
+A professional Bluetooth-based monitoring, diagnostics, and remote control platform for ESP32 devices.
+</p>
 
 ---
 
-## Overview
+## 📋 Table of Contents
 
-The firmware runs on an ESP32 and exposes a simple command interface through `BluetoothSerial`. A client application such as a smartphone terminal or a desktop serial tool connects to the ESP32, sends commands, and receives system information back over the same channel.
-
-The system is intentionally simple and robust:
-
-- onboard LED at GPIO 2 is used as the output actuator
-- commands are interpreted in `loop()` from the Bluetooth serial buffer
-- each command triggers a controlled action or diagnostic response
-- asynchronous blinking is handled with `millis()` to avoid blocking delays
+- 📖 Overview
+- ✨ Key Capabilities
+- 🏗️ Software Architecture
+- 🚀 Startup Sequence
+- 📡 Bluetooth Communication
+- 📱 Android Integration
+- 📑 Command Reference
+- 📊 Project Status
+- 🧩 Core Components
+- 🎯 Target Applications
+- 🛣️ Roadmap
+- 📄 License
 
 ---
 
-## System Architecture
+# 📖 Overview
+
+The ESP32 Bluetooth Device Management Platform provides a lightweight and extensible framework for remote control, system monitoring, and diagnostics using Bluetooth Classic Serial Port Profile (SPP).
+
+The platform enables direct communication between smartphones, tablets, computers, and ESP32 devices without requiring Wi-Fi infrastructure, Internet connectivity, cloud services, or external dependencies.
+
+Designed around a modular architecture, the platform supports remote command execution, hardware control, operational monitoring, and diagnostics through a simple command-based interface.
+
+---
+
+# ✨ Key Capabilities
+
+🔵 Bluetooth Classic (SPP) Communication
+
+🟢 Remote Device Administration
+
+🟡 Command-Based Control Interface
+
+🔴 LED Control and Status Signaling
+
+🟣 Continuous and Timed Blink Modes
+
+🟠 CPU Diagnostics
+
+🟤 RAM Monitoring
+
+⚪ Flash Memory Information
+
+🔷 Internal Temperature Monitoring
+
+🔶 Device Uptime Reporting
+
+🟩 MAC Address Retrieval
+
+🟦 Network Information Reporting
+
+⚙️ Modular Architecture
+
+🧩 Easily Extensible Command Framework
+
+📱 Android Smartphone Compatibility
+
+💻 Desktop Bluetooth Terminal Compatibility
+
+---
+
+# 🏗️ Software Architecture
+
+The platform is organized into independent modules responsible for communication, command processing, monitoring, and hardware control.
 
 ```mermaid
 flowchart LR
-    A[Android Smartphone / PC] --> B[Bluetooth Classic SPP]
-    B --> C[ESP32 Controller]
-    C --> D[GPIO2 LED]
-    C --> E[System Monitor]
-    C --> F[Status and Diagnostics]
-    D --> G[User Feedback]
-    E --> G
-    F --> G
+
+    subgraph Client_Devices
+        PHONE[Android Smartphone]
+        PC[Desktop Computer]
+        TABLET[Tablet]
+    end
+
+    subgraph Communication_Layer
+        BT[Bluetooth Classic SPP]
+    end
+
+    subgraph ESP32_Platform
+
+        CMD[Command Processor]
+
+        LED[LED Controller]
+
+        MON[System Monitor]
+
+        INFO[System Information]
+
+    end
+
+    PHONE --> BT
+    TABLET --> BT
+    PC --> BT
+
+    BT --> CMD
+
+    CMD --> LED
+    CMD --> MON
+    CMD --> INFO
 ```
-
-The architecture follows a classic embedded control model:
-
-- the client initiates a Bluetooth connection
-- the ESP32 listens for commands on the serial channel
-- the firmware performs the requested action
-- the result is sent back over Bluetooth to the client
 
 ---
 
-## Data Flow Diagram
-
-```mermaid
-sequenceDiagram
-    participant User as Client Device
-    participant BT as Bluetooth SPP
-    participant ESP as ESP32 Firmware
-    participant HW as LED / Internal Sensors
-
-    User->>BT: Connect to ESP32_BT
-    BT->>ESP: Incoming command
-    ESP->>ESP: Parse command and validate
-    ESP->>HW: Execute LED action or read system data
-    HW-->>ESP: Sensor/actuator response
-    ESP-->>BT: Return status text
-    BT-->>User: Display result in terminal
-```
-
-The command/response pattern is simple and consistent:
-
-1. Device connects over Bluetooth
-2. Command is read from the serial buffer
-3. Firmware executes logic
-4. Response is sent back as text
-5. Client displays or logs the result
-
----
-
-## State Machine
-
-```mermaid
-stateDiagram-v2
-    [*] --> Initialization
-    Initialization --> BluetoothReady
-    BluetoothReady --> WaitingForCommand
-    WaitingForCommand --> ExecutingCommand
-    ExecutingCommand --> WaitingForCommand
-    ExecutingCommand --> ErrorState
-    ErrorState --> WaitingForCommand
-```
-
-The firmware has a straightforward operational lifecycle:
-
-- initialize serial and pins
-- enable Bluetooth device name `ESP32_BT`
-- wait for incoming command
-- parse and execute the request
-- return output to the client
-
----
-
-## Hardware and Wiring
-
-### Required Hardware
-
-| Component | Purpose |
-| --- | --- |
-| ESP32 Dev Module | Main controller |
-| LED | Visual output indicator |
-| 220Ω resistor | Current limiting for LED |
-| Jumper wires | Connection between GPIO and LED |
-| 3.3V power source | Board power |
-
-### Minimal Electrical Schematic
-
-```text
-              +3.3V
-                |
-                |
-             [ESP32]
-                |
-                +---- GPIO2 ----[220Ω]----|<|---- GND
-                         (LED indicator)
-```
-
-### Pin Mapping
-
-| ESP32 Pin | Connection |
-| --- | --- |
-| GPIO 2 | Onboard LED / status indicator |
-| GND | LED cathode return |
-| 3V3 | Power rail |
-
-> No external sensor is required for this example. Most telemetry is obtained directly from the ESP32 internal hardware and runtime APIs.
-
----
-
-## Software Architecture
+# 🚀 Startup Sequence
 
 ```mermaid
 flowchart TD
-    A["setup()"] --> B["Serial.begin(115200)"]
-    B --> C["pinMode(LED, OUTPUT)"]
-    C --> D["SerialBT.begin('ESP32_BT')"]
-    D --> E["loop()"]
-    E --> F{Bluetooth data available?}
-    F -- Yes --> G[Read command]
-    G --> H["executa_comando(cmd)"]
-    H --> I{Command type}
-    I --> J[LED control]
-    I --> K[System telemetry]
-    I --> L[Unknown command]
-    J --> M[Return status]
-    K --> M
-    L --> M
-    M --> E
-    F -- No --> E
-```
 
-The firmware is organized around two main functions:
+    A[Power On] --> B[Initialize Bluetooth Stack]
 
-- `setup()` initializes communication and GPIO
-- `loop()` continuously monitors incoming Bluetooth traffic
-- `executa_comando()` handles all recognized commands and dispatches the correct logic
+    B --> C[Create SPP Device]
 
----
+    C --> D[Advertise ESP32_BT]
 
-## Repository Structure
+    D --> E[Wait for Connection]
 
-The repository currently contains the following files:
+    E --> F[Receive Commands]
 
-```text
-esp32_bluetooth/
-├── README.md
-├── bluetooth.ino
-├── CommandHandler.h
-├── CommandHandler.cpp
-├── DisplayController.h
-├── DisplayController.cpp
-├── LedController.h
-├── LedController.cpp
-└── .gitignore
-```
+    F --> G[Execute Command]
 
-### File Responsibilities
-
-- `bluetooth.ino` — main Arduino sketch; initializes the ESP32, Bluetooth, and loop logic
-- `CommandHandler.h/.cpp` — parses incoming commands and dispatches actions
-- `DisplayController.h/.cpp` — handles display/status formatting logic
-- `LedController.h/.cpp` — manages LED state, blinking patterns, and timing behavior
-- `README.md` — project documentation and usage instructions
-
----
-
-## Features
-
-The project supports the following remote features:
-
-- Bluetooth Classic communication using SPP
-- LED on/off control
-- Configurable LED blink pattern
-- Continuous asynchronous blinking mode
-- Internal CPU temperature reading
-- CPU core, model, and frequency reporting
-- RAM usage and heap diagnostics
-- Flash memory information
-- Uptime reporting
-- MAC address lookup
-- Wi-Fi network information
-- Last reset reason detection
-
----
-
-## Supported Commands
-
-The ESP32 accepts plain text commands through the Bluetooth serial channel.
-
-| Command | Description | Example |
-| --- | --- | --- |
-| `LED_ON` | Turns LED on | `LED_ON` |
-| `LED_OFF` | Turns LED off | `LED_OFF` |
-| `LED_PISCA:10:250` | Blink LED N times with delay in ms | `LED_PISCA:5:500` |
-| `LED_BLINK:500` | Start asynchronous blinking at interval | `LED_BLINK:500` |
-| `TEMP` | Read internal ESP32 temperature | `TEMP` |
-| `CPU` | Read CPU model, revision, cores, and frequency | `CPU` |
-| `RAM` | Read heap and allocation statistics | `RAM` |
-| `FLASH` | Read flash memory parameters | `FLASH` |
-| `INIT` | Read reset reason | `INIT` |
-| `UPTIME` | Read device uptime in ms | `UPTIME` |
-| `MAC` | Read device MAC address | `MAC` |
-| `NET_INFO` | Read IP, gateway, subnet, RSSI, SSID | `NET_INFO` |
-
-### Command Examples
-
-```text
-LED_ON
-LED_OFF
-LED_PISCA:10:250
-LED_BLINK:500
-TEMP
-CPU
-RAM
-FLASH
-INIT
-UPTIME
-MAC
-NET_INFO
+    G --> H[Return Response]
 ```
 
 ---
 
-## Example Responses
+# 📡 Bluetooth Communication
 
-```text
-> LED_ON
-LED ligado
-```
+The platform uses Bluetooth Classic Serial Port Profile (SPP) for bidirectional communication.
 
-```text
-> TEMP
-CPU Temp: 43.25
-```
-
-```text
-> CPU
-Modelo: ESP32
-Revisão: 1
-Núcleos: 2
-CPU: 240 MHz
-RAM livre: 280000 bytes
-```
-
-```text
-> NET_INFO
-IP: 192.168.1.42
-Gateway: 192.168.1.1
-Mascara de rede: 255.255.255.0
-RSSI: -52 dbm
-Nome da Rede: MyWiFi
-```
-
----
-
-## Communication Protocol
-
-The application uses a simple human-readable serial protocol over Bluetooth SPP:
-
-- commands are sent as newline-terminated strings
-- `cmd.trim()` clears surrounding whitespace
-- each command is matched against known patterns
-- response is printed back to the same Bluetooth channel
-
-This makes the project especially friendly for:
-
-- Android terminal apps
-- manual validation
-- rapid prototyping
-- educational experiments
-- embedded systems testing
-
----
-
-## Startup Sequence
-
-```mermaid
-flowchart TD
-    A[Power ON] --> B[ESP32 boots]
-    B --> C[Initialize GPIO]
-    C --> D[Create Bluetooth device: ESP32_BT]
-    D --> E[Wait for incoming connection]
-    E --> F[Read command from serial buffer]
-    F --> G[Process command]
-    G --> H[Return command result]
-    H --> E
-```
-
-The device begins in a passive monitoring state and remains ready to receive commands until power is removed or the connection is lost.
-
----
-
-## Recommended Android Terminal App
-
-For testing with Android devices, the recommended application is:
-
-- Serial Bluetooth Terminal by Kai Morich
-
-### Features
-
-- connect to an SPP Bluetooth device
-- send custom commands manually
-- view live responses in real time
-- create quick-access command macros
-- observe debug output clearly
-
-### Connection Steps
-
-1. Power on the ESP32.
-2. Pair the phone with the device named `ESP32_BT`.
-3. Open the Bluetooth terminal application.
-4. Select the paired ESP32 device.
-5. Connect to it.
-6. Type one of the supported commands and read the response.
-
----
-
-## Quick Start
-
-### 1. Open the project
-
-The main firmware is contained in:
-
-```text
-bluetooth.ino
-```
-
-### 2. Compile and upload
-
-Use the Arduino IDE or an equivalent ESP32-compatible toolchain with the required board support package.
-
-### 3. Pair the device
-
-Connect with any Bluetooth Classic client and use the device name:
+## Device Name
 
 ```text
 ESP32_BT
 ```
 
-### 4. Send commands
+## Communication Flow
 
-Example session:
+```mermaid
+sequenceDiagram
 
-```text
-> TEMP
-CPU Temp: 41.20
+    participant User
+    participant Bluetooth
+    participant ESP32
 
-> LED_ON
-LED ligado
+    User->>Bluetooth: Send Command
 
-> CPU
-Modelo: ESP32
-Revisão: 1
-Núcleos: 2
-CPU: 240 MHz
-RAM livre: 280000 bytes
+    Bluetooth->>ESP32: Forward Request
+
+    ESP32->>ESP32: Process Command
+
+    ESP32-->>Bluetooth: Generate Response
+
+    Bluetooth-->>User: Return Result
 ```
 
 ---
 
-## Typical Use Cases
+# 📱 Android Integration
 
-- Bluetooth-based educational prototypes
-- IoT device experimentation
-- local embedded system monitoring
-- wireless LED control
-- real-time diagnostics without Wi-Fi dependence
-- teaching Bluetooth Classic on ESP32
-- simple instrumentation and proof-of-concept development
+## Recommended Application
 
----
+### Serial Bluetooth Terminal
 
-## Project Summary
+Recommended Features:
 
-This project is a practical and compact demonstration of Bluetooth Classic communication on the ESP32. It combines a simple LED control interface with a diagnostic command set that reads data from the device and returns it over a Bluetooth serial link.
+- Real-time communication
+- Command history
+- Custom macros
+- Custom buttons
+- Communication logging
+- UTF-8 support
 
-The result is a fast, readable example of:
+## Connection Procedure
 
-- embedded control logic
-- Bluetooth serial communication
-- hardware abstraction through Arduino APIs
-- asynchronous timing with `millis()`
-- system information reporting from an ESP32
-
----
-
-## Author
-
-Paulo Cesar Furlanetto Marques
-
-Professor • Developer • IoT, Networking, and Embedded Systems Enthusiast
-
-GitHub: https://github.com/paulocfmarques-collab
+1. Power on the ESP32.
+2. Pair the smartphone with the device.
+3. Open Serial Bluetooth Terminal.
+4. Select **ESP32_BT**.
+5. Connect.
+6. Send commands through the terminal interface.
 
 ---
 
-## Support the Project
+# 📑 Command Reference
 
-If this project was useful to you:
+## Hardware Control Commands
 
-- star the repository
-- share it with other developers
-- fork it and extend it
-- contribute improvements or new command features
+| Command | Description |
+|----------|-------------|
+| `LED_ON` | Turns the onboard LED on |
+| `LED_OFF` | Turns the onboard LED off |
+| `LED_BLINK:<interval>` | Starts continuous blinking |
+| `LED_PISCA:<count>:<delay>` | Executes a finite blink sequence |
+
+### Examples
+
+```text
+LED_ON
+```
+
+```text
+LED_OFF
+```
+
+```text
+LED_BLINK:500
+```
+
+```text
+LED_PISCA:10:250
+```
 
 ---
 
-## License
+## Monitoring Commands
 
-This project is distributed under the MIT license.
+| Command | Description |
+|----------|-------------|
+| `TEMP` | Returns internal temperature |
+| `CPU` | Returns processor information |
+| `RAM` | Returns memory statistics |
+| `FLASH` | Returns flash information |
+| `UPTIME` | Returns device uptime |
+
+### Examples
+
+```text
+TEMP
+```
+
+```text
+CPU
+```
+
+```text
+RAM
+```
+
+```text
+FLASH
+```
+
+```text
+UPTIME
+```
+
+---
+
+## Device Information Commands
+
+| Command | Description |
+|----------|-------------|
+| `MAC` | Returns device MAC address |
+| `NET_INFO` | Returns network information |
+| `INIT` | Returns last reset reason |
+
+### Examples
+
+```text
+MAC
+```
+
+```text
+NET_INFO
+```
+
+```text
+INIT
+```
+
+---
+
+# 📈 Project Status
+
+| Feature | Status |
+|----------|----------|
+| Bluetooth Communication | ✅ Stable |
+| Command Processing | ✅ Stable |
+| LED Control | ✅ Stable |
+| Hardware Monitoring | ✅ Stable |
+| CPU Diagnostics | ✅ Stable |
+| RAM Monitoring | ✅ Stable |
+| Flash Monitoring | ✅ Stable |
+| Documentation | ✅ Stable |
+| BLE Support | 🚧 Planned |
+| Authentication | 🚧 Planned |
+| OTA Updates | 🚧 Planned |
+
+---
+
+# 🧩 Core Components
+
+## BluetoothManager
+
+Responsible for Bluetooth communication.
+
+### Capabilities
+
+- Device discovery
+- Pairing support
+- Connection management
+- Data transport
+
+---
+
+## CommandProcessor
+
+Responsible for command execution.
+
+### Capabilities
+
+- Command parsing
+- Parameter validation
+- Routing
+- Response generation
+
+---
+
+## LEDController
+
+Responsible for all LED operations.
+
+### Capabilities
+
+- ON / OFF control
+- Timed blinking
+- Continuous blinking
+- Status indication
+
+---
+
+## SystemMonitor
+
+Responsible for device diagnostics.
+
+### Monitored Resources
+
+- CPU
+- RAM
+- Flash Storage
+- Temperature
+- Uptime
+
+---
+
+## SystemInformation
+
+Responsible for platform metadata.
+
+### Available Information
+
+- MAC Address
+- Reset Reason
+- Network Information
+
+---
+
+# 📊 Command Processing Flow
+
+```mermaid
+flowchart LR
+
+    CLIENT[Bluetooth Client]
+        --> BT[Bluetooth Serial]
+
+    BT --> CMD[Command Processor]
+
+    CMD --> LED[LED Controller]
+    CMD --> MON[System Monitor]
+    CMD --> INFO[System Information]
+
+    LED --> RESPONSE[Response Generator]
+    MON --> RESPONSE
+    INFO --> RESPONSE
+
+    RESPONSE --> CLIENT
+```
+
+---
+
+# 🎯 Target Applications
+
+- Industrial Bluetooth Controllers
+- Laboratory Equipment
+- Embedded Systems Education
+- Smart Home Devices
+- Field Diagnostic Tools
+- Standalone Monitoring Devices
+- Maintenance Terminals
+- Research and Development Projects
+
+---
+
+# 🛣️ Roadmap
+
+## Completed
+
+- [x] Bluetooth Classic Communication
+- [x] Command Processing Framework
+- [x] LED Control
+- [x] Device Monitoring
+- [x] Command-Based Diagnostics
+
+## Planned
+
+- [ ] Bluetooth Low Energy (BLE)
+- [ ] Authentication Layer
+- [ ] JSON Command Protocol
+- [ ] OLED Display Support
+- [ ] SD Card Logging
+- [ ] RGB Status LED
+- [ ] OTA Updates
+- [ ] Sensor Framework
+
+---
+
+# 💡 Design Principles
+
+The platform was developed following the principles of:
+
+- Modularity
+- Maintainability
+- Extensibility
+- Hardware Abstraction
+- Simplicity
+
+The communication layer is intentionally lightweight, enabling reliable remote administration and diagnostics without relying on Wi-Fi networks or cloud infrastructure.
+
+The architecture allows new commands, peripherals, and monitoring capabilities to be integrated with minimal impact on existing components.
+
+---
+
+# 📄 License
+
+This project is released under the license specified by the repository owner.
 
 ---
 
 <p align="center">
-  <sub>ESP32 Bluetooth Remote Control & System Monitor</sub>
+
+Built with ❤️ using ESP32 and Arduino Framework
+
+</p>
+
+<p align="center">
+
+https://img.shields.io/badge/ESP32-IoT-E7352C?style=for-the-badge&logo=espressif
+https://img.shields.io/badge/Bluetooth-SPP-0082FC?style=for-the-badge&logo=bluetooth
+https://img.shields.io/badge/Open_Source-Project-success?style=for-the-badge
+
 </p>
