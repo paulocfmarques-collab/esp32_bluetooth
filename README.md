@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/Language-C%2B%2B-00599C?style=for-the-badge&logo=c%2B%2B" alt="C++" />
 </p>
 
-A compact ESP32 project for remote control and live system diagnostics over Bluetooth Classic (SPP). The device creates a serial channel with a smartphone or PC, accepts textual commands, and returns status information.
+A compact ESP32 project for remote control and live system diagnostics over Bluetooth Classic (SPP). The device creates a serial channel with a smartphone or PC, accepts textual commands, and returns status information in real time.
 
 This repository demonstrates a practical embedded application that combines:
 
@@ -21,7 +21,7 @@ This repository demonstrates a practical embedded application that combines:
 
 ## Overview
 
-The firmware runs on an ESP32 and exposes a simple command interface through `BluetoothSerial`. A client application such as a smartphone terminal or a desktop serial tool connects to the ESP32, sends commands, and receives responses.
+The firmware runs on an ESP32 and exposes a simple command interface through `BluetoothSerial`. A client application such as a smartphone terminal or a desktop serial tool connects to the ESP32, sends commands, and receives system information back over the same channel.
 
 The system is intentionally simple and robust:
 
@@ -169,6 +169,33 @@ The firmware is organized around two main functions:
 - `setup()` initializes communication and GPIO
 - `loop()` continuously monitors incoming Bluetooth traffic
 - `executa_comando()` handles all recognized commands and dispatches the correct logic
+
+---
+
+## Repository Structure
+
+The repository currently contains the following files:
+
+```text
+esp32_bluetooth/
+├── README.md
+├── bluetooth.ino
+├── CommandHandler.h
+├── CommandHandler.cpp
+├── DisplayController.h
+├── DisplayController.cpp
+├── LedController.h
+├── LedController.cpp
+└── .gitignore
+```
+
+### File Responsibilities
+
+- `bluetooth.ino` — main Arduino sketch; initializes the ESP32, Bluetooth, and loop logic
+- `CommandHandler.h/.cpp` — parses incoming commands and dispatches actions
+- `DisplayController.h/.cpp` — handles display/status formatting logic
+- `LedController.h/.cpp` — manages LED state, blinking patterns, and timing behavior
+- `README.md` — project documentation and usage instructions
 
 ---
 
@@ -380,7 +407,7 @@ RAM livre: 280000 bytes
 
 ## Project Summary
 
-This project is a practical and compact demonstration of Bluetooth Classic communication on the ESP32. It combines a simple LED control interface with a diagnostic command set that reads data from the device's internal hardware and runtime APIs.
+This project is a practical and compact demonstration of Bluetooth Classic communication on the ESP32. It combines a simple LED control interface with a diagnostic command set that reads data from the device and returns it over a Bluetooth serial link.
 
 The result is a fast, readable example of:
 
