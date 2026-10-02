@@ -2,11 +2,11 @@
 
 <p align="center">
 
-<img src="https://img.shields.io/badge/ESP32-Bluetooth-blue?style=for-theo=espressif
-<img src="https://img.shields.io/badge/Framework-Arduinoyle=for-the-badge&logo=arduino
-<img src="https://img.shields.io/badge/Bluetooth-Classic_SPPyle=for-the-badge&logo=bluetooth
-<img src="https://img.shields.io/badge/++-00599C?style=for-the-badge&logo=cplusplus
-<img src="https://img.shields.io/badge/Platform-ESP32-Ee=for-the-badge
+<img src="https://img.shields.io/badge/ESP32-Bluetooth-1D4ED8?style=for-the-badge&logo=espressif" alt="ESP32 Bluetooth" />
+<img src="https://img.shields.io/badge/Framework-Arduino-00979D?style=for-the-badge&logo=arduino" alt="Arduino Framework" />
+<img src="https://img.shields.io/badge/Bluetooth-Classic_SPP-0082FC?style=for-the-badge&logo=bluetooth" alt="Bluetooth Classic SPP" />
+<img src="https://img.shields.io/badge/C%2B%2B-00599C?style=for-the-badge&logo=cplusplus" alt="C++" />
+<img src="https://img.shields.io/badge/Platform-ESP32-E7352C?style=for-the-badge&logo=espressif" alt="Platform ESP32" />
 
 </p>
 
@@ -464,8 +464,8 @@ Built with ❤️ using ESP32 and Arduino Framework
 
 <p align="center">
 
-https://img.shields.io/badge/ESP32-IoT-E7352C?style=for-the-badge&logo=espressif
-https://img.shields.io/badge/Bluetooth-SPP-0082FC?style=for-the-badge&logo=bluetooth
-https://img.shields.io/badge/Open_Source-Project-success?style=for-the-badge
+<img src="https://img.shields.io/badge/ESP32-IoT-E7352C?style=for-the-badge&logo=espressif" alt="ESP32 IoT" />
+<img src="https://img.shields.io/badge/Bluetooth-SPP-0082FC?style=for-the-badge&logo=bluetooth" alt="Bluetooth SPP" />
+<img src="https://img.shields.io/badge/Open_Source-Project-success?style=for-the-badge" alt="Open Source Project" />
 
 </p>
