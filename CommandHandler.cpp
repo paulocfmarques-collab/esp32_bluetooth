@@ -10,42 +10,42 @@ void CommandHandler::execute(String cmd) {
     // Imprime na tela o comando capturado
     _display.printLine(cmd);
 
-    if (cmd == "LED_ON") {
+    if (cmd == "led_on") {
         _led.turnOn();
         _bt.print("LED ligado\n");
     }
-    else if (cmd == "LED_OFF") {
+    else if (cmd == "led_off") {
         _led.turnOff();
         _bt.print("LED desligado\n");
     }
-    else if (cmd.startsWith("LED_PISCA")) {
+    else if (cmd.startsWith("led_pisca")) {
         processLedFlash(cmd);
     }
-    else if (cmd.startsWith("LED_BLINK")) {
+    else if (cmd.startsWith("led_blink")) {
         processLedBlink(cmd);
     }
-    else if (cmd == "TEMP") {
+    else if (cmd == "temp") {
         _bt.printf("CPU Temp: %.2f\n", temperatureRead());
     }
-    else if (cmd == "CPU") {
+    else if (cmd == "cpu") {
         sendCpuInfo();
     }
-    else if (cmd == "RAM") {
+    else if (cmd == "ram") {
         sendRamInfo();
     }
-    else if (cmd == "FLASH") {
+    else if (cmd == "flash") {
         sendFlashInfo();
     }
-    else if (cmd == "INIT") {
+    else if (cmd == "init") {
         _bt.printf("Motivo reset: %d\n", esp_reset_reason());
     }
-    else if (cmd == "UPTIME") {
+    else if (cmd == "uptime") {
         _bt.printf("Uptime: %lu ms\n", millis());
     }
-    else if (cmd == "MAC") {
+    else if (cmd == "mac") {
         _bt.printf("MAC: %s\n", WiFi.macAddress().c_str());
     }
-    else if (cmd == "NET_INFO") {
+    else if (cmd == "net_info") {
         sendNetworkInfo();
     }
     else {
