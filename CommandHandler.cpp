@@ -1,91 +1,133 @@
 #include "CommandHandler.h"
 #include <WiFi.h>
 
-CommandHandler::CommandHandler(LedController& ledController, BluetoothSerial& bluetoothSerial, DisplayController& displayController) 
-    : _led(ledController), _bt(bluetoothSerial), _display(displayController) {}
+CommandHandler::CommandHandler(LedController& ledController, BluetoothSerial& bluetoothSerial,
+                               DisplayController& displayController)
+    : _led(ledController), _bt(bluetoothSerial), _display(displayController)
+{
+}
 
-void CommandHandler::execute(String cmd) {
+void CommandHandler::execute(String cmd)
+{
     cmd.trim();
-    
+
     // Imprime na tela o comando capturado
     _display.printLine(cmd);
 
-    if (cmd == "led_on") {
+    if (cmd == "led_on")
+    {
         _led.turnOn();
         _bt.print("LED ligado\n");
     }
-    else if (cmd == "led_off") {
+    else if (cmd == "name")
+    {
+        _bt.print("ESP32\n");
+    }
+    else if (cmd == "led_off")
+    {
         _led.turnOff();
         _bt.print("LED desligado\n");
     }
-    else if (cmd.startsWith("led_pisca")) {
+    else if (cmd.startsWith("led_pisca"))
+    {
         processLedFlash(cmd);
     }
-    else if (cmd.startsWith("led_blink")) {
+    else if (cmd.startsWith("led_blink"))
+    {
         processLedBlink(cmd);
     }
-    else if (cmd == "temp") {
+    else if (cmd == "temp")
+    {
         _bt.printf("CPU Temp: %.2f\n", temperatureRead());
     }
-    else if (cmd == "cpu") {
+    else if (cmd == "cpu")
+    {
         sendCpuInfo();
     }
-    else if (cmd == "ram") {
+    else if (cmd == "ram")
+    {
         sendRamInfo();
     }
-    else if (cmd == "flash") {
+    else if (cmd == "flash")
+    {
         sendFlashInfo();
     }
-    else if (cmd == "init") {
+    else if (cmd == "init")
+    {
         _bt.printf("Motivo reset: %d\n", esp_reset_reason());
     }
-    else if (cmd == "uptime") {
+    else if (cmd == "uptime")
+    {
         _bt.printf("Uptime: %lu ms\n", millis());
     }
-    else if (cmd == "mac") {
+    else if (cmd == "mac")
+    {
         _bt.printf("MAC: %s\n", WiFi.macAddress().c_str());
     }
-    else if (cmd == "net_info") {
+    else if (cmd == "net_info")
+    {
         sendNetworkInfo();
     }
-    else {
+    else
+    {
         _bt.print("Comando desconhecido\n");
     }
 }
 
 // Métodos internos mantidos... (idênticos à versão anterior)
-void CommandHandler::processLedFlash(const String& cmd) {
-    int piscadas = 10; int tempo = 250;
-    int p1 = cmd.indexOf(':'); int p2 = cmd.indexOf(':', p1 + 1);
-    if (p1 > 0 && p2 > 0) { piscadas = cmd.substring(p1 + 1, p2).toInt(); tempo = cmd.substring(p2 + 1).toInt(); }
+void CommandHandler::processLedFlash(const String& cmd)
+{
+    int piscadas = 10;
+    int tempo = 250;
+    int p1 = cmd.indexOf(':');
+    int p2 = cmd.indexOf(':', p1 + 1);
+    if (p1 > 0 && p2 > 0)
+    {
+        piscadas = cmd.substring(p1 + 1, p2).toInt();
+        tempo = cmd.substring(p2 + 1).toInt();
+    }
     _led.flashBlocking(piscadas, tempo);
     _bt.printf("LED piscou %d vezes com %d ms\n", piscadas, tempo);
 }
-void CommandHandler::processLedBlink(const String& cmd) {
-    unsigned long intervalo = 500; int p = cmd.indexOf(':');
-    if (p > 0) { intervalo = cmd.substring(p + 1).toInt(); }
+
+void CommandHandler::processLedBlink(const String& cmd)
+{
+    unsigned long intervalo = 500;
+    int p = cmd.indexOf(':');
+    if (p > 0)
+    {
+        intervalo = cmd.substring(p + 1).toInt();
+    }
     _led.setBlink(intervalo);
     _bt.printf("Blink iniciado (%lu ms)\n", intervalo);
 }
-void CommandHandler::sendCpuInfo() {
+
+void CommandHandler::sendCpuInfo()
+{
     _bt.printf("Modelo: %s\n", ESP.getChipModel());
     _bt.printf("Revisão: %d\n", ESP.getChipRevision());
     _bt.printf("Núcleos: %d\n", ESP.getChipCores());
     _bt.printf("CPU: %d MHz\n", ESP.getCpuFreqMHz());
     _bt.printf("RAM livre: %u bytes\n", ESP.getFreeHeap());
 }
-void CommandHandler::sendRamInfo() {
+
+void CommandHandler::sendRamInfo()
+{
     _bt.printf("Heap livre: %u\n", ESP.getFreeHeap());
     _bt.printf("Menor heap livre: %u\n", ESP.getMinFreeHeap());
     _bt.printf("Maior bloco livre: %u\n", ESP.getMaxAllocHeap());
 }
-void CommandHandler::sendFlashInfo() {
+
+void CommandHandler::sendFlashInfo()
+{
     _bt.printf("Flash total: %u\n", ESP.getFlashChipSize());
     _bt.printf("Velocidade Flash: %u\n", ESP.getFlashChipSpeed());
     _bt.printf("Tamanho Sketch: %u\n", ESP.getSketchSize());
     _bt.printf("Espaco livre: %u\n", ESP.getFreeSketchSpace());
 }
-void CommandHandler::sendNetworkInfo() {
+
+void CommandHandler::sendNetworkInfo()
+{
     _bt.printf("IP: %s\n", WiFi.localIP().toString().c_str());
     _bt.printf("Gateway: %s\n", WiFi.gatewayIP().toString().c_str());
     _bt.printf("Mascara de rede: %s\n", WiFi.subnetMask().toString().c_str());
