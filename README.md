@@ -203,6 +203,7 @@ sequenceDiagram
 
 | Command | Description | Example |
 |---------|-------------|---------|
+| `name` | Returns the device identifier (`ESP32C3Mini`) | `name` |
 | `MAC` | Returns device MAC address | `MAC` |
 | `NET_INFO` | Returns network information | `NET_INFO` |
 | `INIT` | Returns last reset reason | `INIT` |
